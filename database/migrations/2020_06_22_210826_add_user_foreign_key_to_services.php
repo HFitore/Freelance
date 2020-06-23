@@ -15,7 +15,6 @@ class AddUserForeignKeyToServices extends Migration
     {
         Schema::table('services', function (Blueprint $table) {
             $table->foreign('user_id')->references('id')->on('users');
-
         });
     }
 
