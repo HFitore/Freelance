@@ -81,7 +81,7 @@
 
             <div class="content">
                 <div class="title m-b-md">
-                    Test per push in develop branch
+                    Test trim
                 </div>
 
                 <div class="links">
