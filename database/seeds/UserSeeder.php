@@ -33,17 +33,19 @@ class UserSeeder extends Seeder
         $freelancer_password_hashed = Hash::make($f_password);
         $employer_password_hashed = Hash::make($e_password);
 
-        $adminRole = Role::find(1);
-        $freelancerRole = Role::find(2);
-        $employerRole = Role::find(3);
+        $freelancerRole = Role::find(1);
+        $employerRole = Role::find(2);
+        $adminRole = Role::find(3);
 
-        $admin = User::create(['name' => 'admin', 'username' => $username, 'email' => $email, 'password' => $password_hashed, 'image' => 'noimage.jpg']);
+
         $freelancer = User::create(['name' => 'freelancer', 'username' => $f_username, 'email' => $f_email, 'password' => $freelancer_password_hashed, 'image' => 'noimage.jpg']);
         $employer = User::create(['name' => 'employer', 'username' => $e_username, 'email' => $e_email, 'password' => $employer_password_hashed, 'image' => 'noimage.jpg']);
+        $admin = User::create(['name' => 'admin', 'username' => $username, 'email' => $email, 'password' => $password_hashed, 'image' => 'noimage.jpg']);
 
-        $adminRole->users()->save($admin);
         $freelancerRole->users()->save($freelancer);
         $employerRole->users()->save($employer);
+        $adminRole->users()->save($admin);
+
 
     }
 }
