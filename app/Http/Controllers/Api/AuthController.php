@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\User;
 use Validator;
+use App\Notifications\SignupActivate;
+use Illuminate\Support\Str;
 
 class AuthController extends ResponseController
 {
@@ -36,12 +38,15 @@ class AuthController extends ResponseController
         $input = $request->all();
         $input['username']=$request->username;
         $input['password'] = bcrypt($input['password']);
+        $input['activation_token']=Str::random(60);
         $role = Role::find(1);
         $user = User::create($input);
         $user['image']=$fileToStore;
         $role->users()->save($user);
         if($user){
             $success['token'] =  $user->createToken('token')->accessToken;
+            //team, ky reshti eshte per me notify userin me nje email per me aktivizu accountin
+//            $user->notify(new SignupActivate($user));
             return response()->json([
                 'created' => true,
                 'access_token' => $success['token'],
@@ -57,7 +62,7 @@ class AuthController extends ResponseController
 
     public function login(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+         $validator = Validator::make($request->all(), [
             'email' => 'required|string|email',
             'password' => 'required'
         ]);
@@ -67,6 +72,8 @@ class AuthController extends ResponseController
         }
 
         $credentials = request(['email', 'password']);
+        $credentials['active'] = 1;
+        $credentials['deleted_at'] = null;
         if(!Auth::attempt($credentials)){
             $error = "Unauthorized";
             return $this->sendError($error, 401);
@@ -104,5 +111,18 @@ class AuthController extends ResponseController
             $error = "user not found";
             return $this->sendResponse($error);
         }
+    }
+    public function signupActivate($token)
+    {
+        $user = User::where('activation_token', $token)->first();
+        if (!$user) {
+            return response()->json([
+                'message' => 'This activation token is invalid.'
+            ], 404);
+        }
+        $user->active = true;
+        $user->activation_token = '';
+        $user->save();
+        return $user;
     }
 }
